@@ -26,7 +26,8 @@ int main(int argc, char *argv[])
 	bool found_ip = false;
 	int port_count = 0;
 	int port_array[3];
-
+	int log_portno = 9999;
+	bool found_port = false;
 	for(int i = 1; i < argc; i++)
 	{//string comarison for arg
 		if(strcmp(argv[i], "-logip") == 0)
@@ -37,6 +38,15 @@ int main(int argc, char *argv[])
 		{//assigns ip to arg ip
 			log_server = getServer(argv[i]);
 			found_ip = false;
+		}
+		else if(strcmp(argv[i], "-logport") == 0)
+		{
+			found_port = true;
+		}
+		else if (found_port)
+		{
+			log_portno = getPort(argv[i]);
+			found_port = false;
 		}
 		else if (port_count < 3)
 		{//assigns port args as ports passed by user
@@ -71,7 +81,7 @@ int main(int argc, char *argv[])
 	//log_server = getServer("localhost");
 
 	// setupUDPAddr connects the host and the specified port
-	setupUDPAddr(log_serv_addr, log_server, 9999);
+	setupUDPAddr(log_serv_addr, log_server, log_portno);
 
 	//setupConnection connects the socket file descriptor to the specified server
 	setupConnection(log_sockfd, log_serv_addr);
