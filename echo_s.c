@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
 	// implements zombie handling
 	signal(SIGCHLD, SIG_IGN);
 
-	if (argc < 2 || argc > 4)
+	if (argc < 2 )
 	{
 		// checks if the number of arguments passed to the server are insufficient
 		error("ERROR, required usage is ./echo_s <port1> [<port2> <port3>]");
@@ -19,10 +19,32 @@ int main(int argc, char *argv[])
 	struct hostent *log_server;
 	char log_buffer[1024];
 	
-	int portno = getPort(argv[1]);
+	//int portno = getPort(argv[1]);
 	int port_pid;
 	// if we have multiple ports, we need to fork more processes
-	for (int i = 2; i < argc; i++)
+	log_server = getServer("localhost"); 
+	bool found_ip = false;
+	int port_count = 0;
+	int port_array[3];
+
+	for(int i = 1; i < argc; i++)
+	{//string comarison for arg
+		if(strcmp(argv[i], "-logip") == 0)
+		{
+			found_ip = true;
+		}	
+		else if (found_ip)
+		{//assigns ip to arg ip
+			log_server = getServer(argv[i]);
+			found_ip = false;
+		}
+		else if (port_count < 3)
+		{//assigns port args as ports passed by user
+			port_array[port_count++] = getPort(argv[i]);
+		}
+	}
+	int portno = port_array[0];
+	for (int i = 1; i < port_count; i++)
 	{
 		port_pid = fork();
 		if (port_pid < 0)
@@ -33,7 +55,7 @@ int main(int argc, char *argv[])
 		if (port_pid == 0)
 		{
 			// child
-			portno = getPort(argv[i]);
+			portno = port_array[i];
 			// leave the loop to start executing code on port i
 			break;
 		}
@@ -46,7 +68,7 @@ int main(int argc, char *argv[])
 	log_sockfd = createSocket(AF_INET, SOCK_DGRAM, 0);
 
 	// getServer verifies the user specified server is reachable
-	log_server = getServer("localhost");
+	//log_server = getServer("localhost");
 
 	// setupUDPAddr connects the host and the specified port
 	setupUDPAddr(log_serv_addr, log_server, 9999);
@@ -115,6 +137,7 @@ int main(int argc, char *argv[])
 				// handles the request that has been received by the server
 				handleRequest(sockfd, newsockfd, buffer, 256);
 
+		
 				logRequest(log_sockfd, log_serv_addr, log_length, cli_addr, t, buffer);
 
 				//closes the child process after the server has handled the request
