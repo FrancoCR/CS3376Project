@@ -8,12 +8,29 @@ int main(int argc, char *argv[])
 	socklen_t fromlen;
 	char buffer[1024];
 	struct sockaddr_in server, from;
+	
+	int log_portno = 9999;
+	bool found_port = false;
+	for(int i = 1; i < argc; i++)
+	{//string comarison for arg
+		if(strcmp(argv[i], "-port") == 0)
+		{
+			found_port = true;
+		}	
+		else if (found_port)
+		{//assigns ip to arg ip
+			log_portno = getPort(argv[i]);
+			found_port = false;
+		}
+		
+	}
+	
 
 	// createSocket creates a new UDP socket and returns the filedescripor of the socket
 	sockfd = createSocket(AF_INET, SOCK_DGRAM, 0);
 
 	// setupAddr creates the connection between the server and the port
-	setupAddr(server, 9999);
+	setupAddr(server, log_portno);
 
 	// setupBind connects the socket and the server together
 	setupBind(sockfd, server);
