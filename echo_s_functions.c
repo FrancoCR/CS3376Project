@@ -1,5 +1,23 @@
 #include "echo_s_functions.h"
 
+volatile sig_atomic_t server_stopping = 0;
+time_t t = time(0);
+int log_sockfd = 0;
+unsigned int log_length = 0;
+char log_buffer[1024] = "";
+struct sockaddr_in log_serv_addr;
+struct sockaddr_in from;
+
+//handles interruption signals, propagates them to the processes that share a group with the current process, and sends a message to the log server about this server shutting down.
+void sigintHandler(int param){
+	signal(SIGINT, sigintHandler);
+	t = time(0);
+	server_stopping = 1;
+	logRequest(log_sockfd, log_serv_addr, log_length, from, t, "echo_s is stopping\n");
+	kill(0, SIGINT);
+	exit(param);
+}
+
 // returns an error to the user and exits the program
 void error(const char *msg)
 {
