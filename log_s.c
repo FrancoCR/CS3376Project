@@ -64,8 +64,9 @@ int main(int argc, char *argv[])
 				handleUDPRequest(sockfd, buffer, 1024, from, fromlen);
 				if (memmem(buffer, 1024, "echo_s is stopping", 18) != NULL)
 				{
-					kill(getppid(), SIGKILL);
-					kill(0, SIGKILL);
+					writeToFile(&buffer[0]);//function that writes to echo.log
+					kill(getppid(), SIGKILL);//kill child process
+					kill(0, SIGKILL);//kill parent process
 				}
 				writeToFile(&buffer[0]);//function that writes to echo.log
 			}
