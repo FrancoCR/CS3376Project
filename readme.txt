@@ -2,20 +2,23 @@ Semester Project: cs 3376.501
 
 Group 01: Brobdingnagian
 
+GitHub Repository: https://github.com/FrancoCR/CS3376Project
+
 Members:
 	Franco Alejandro Covarrubias-Reyes-Lucio-Sanchez-Adame-Carrera-Chavez
 	Ryan Glaser
 	Kat Hartman
 	Timothy Shiveley
 	Carla Vazquez
-	Max Winezerl
+	Maxwell Weinzierl
 
 How To Use This Project:
 	1. Enter the command "make" into the command line in the directory where all the files are located.
 		a. This will compile all of the executables.
 	2. Create a server
-		a. type "./echo_s portno1 [portno2 portno3]" into the command line
+		a. type "./echo_s portno1 [portno2 portno3] [-logip ipaddr] [-logport portno]" into the command line
 		b. Where portno# are the ports you would like the server to run on
+		c. type "./log_s [-port portno]" into the command line to run the logging server on a specific port
 	3. Send requests to the server
 		a. type "./echo_c -t/-u host portno" into the command line
 		b. -t or -T mark the message as TCP
@@ -38,7 +41,7 @@ Files Included:
 	Makefile		- echo_c_functions.c, echo_c_functions.h, echo_c.c, echo_s_functions.c, echo_s_functions.h, echo_s.c, log_s_functions.c, log_s_functions.h, log_s.c
 	readme.txt		- HUMANS
 
-Second Deliverable:
+Third Deliverable:
 	1. Write a network echo server, and an echo client, and a log server.
 		a. The server will reply to any client on the same port that it receives a message
 		b. The server will support both TCP and UDP on each port
@@ -49,37 +52,43 @@ Second Deliverable:
 			i. The IP address of the client
 			ii. The timestamp the request was received
 			iii. The message the server received
-		g. The server will only send information to the log server on port 9999 using UDP
+		g. The server will send information to the log server on a specified port, 
+		   using 9999 by default using UDP
 		h. The log server will store information in the file echo.log
+		i. The log server can specify the port to listen on using command line parameters
+		j. The server can specify the ip address for the log server with command line parameters
+		k. The server can specify the port for the log server with command line parameters
+		l. The log server will terminate when the echo server exits using an UDP message
+		m. The log server will log when it exits from the echo server sending an exit message
 	2. Comment the code to describe what the functions are doing.
 
 Tasks Completed By:
-	Franco Covarrubias:
-		Task 1: Worked with max to setup up echo_s to be able to take multiple ports as arguments
-		Task 2: Commented and edited the code accordingly
-		Task 3: Ran necessary tests to ensure ports and arguments were being checked properly
+	Franco Covarrubias: User 1 Task
+		Task 1: Create Git repository with previous second deliverable files.
+		Task 2: Add the "-logip ipaddr" feature to the echo_s so that a log server ip can be specified.
+		Task 3: Document their changes to command line parameter parsing.
 
-	Ryan Glaser:
-		Task 1: General Testing of clients and servers to make sure everything works the way it is required.
-		Task 2: Testing using netcat as a client agaisnt echo_s, and as a a server agaisnt echo_c. 
+	Ryan Glaser: User 2 Task
+		Task 1: Add the "-logport portno" feature to the echo_s so that a log server port can be specified.
+		Task 2: Document their changes to command line parameter parsing.
 		Task 3:
 
-	Kat Hartman:
-		Task 1: Modify copy of echo_s to produce base code for log_s by removing TCP code and setting up UDP code.
-		Task 2: Comment and document project files.
+	Kat Hartman: User 3 Task
+		Task 1: Add the "-port portno" feature to the log_s so that the log server can specify the port to listen on.
+		Task 2: Document their changes to the command line parameter parsing.
 		Task 3:
 
-	Timothy Shiveley:
-		Task 1: Add in -t and -u for client to determine whether to use TCP or UDP.
-		Task 2: Organize and write readme and make sure project files are organized and commented.
-		Task 3: 
+	Timothy Shiveley: User 4 Task
+		Task 1: Add the feature to both the echo_s and log_s which causes the log_s to exit when the echo_s exits.
+		Task 2: Rearrange the log variables to be extern in the .h files so that they can be used in the signal handler.
+		Task 3: Document their changes to the variable locations and usages.
 
-	Carla Vazquez:
-		Task 1: created the function to write messages sent to log_s.c to echo.log.
-		Task 2: updated log_s_functions.c and log_s_functions.h and placed the function call in the necessary location in log_s.c
-		Task 3:
+	Carla Vazquez: User 5 Task
+		Task 1: Add the feature to the log_s which logs when it exits due to the echo_s exit message.
+		Task 2: Test to make sure the log file is working with the new messages.
+		Task 3: Document their changes to the logging structure.
 
-	Max Winezerl:
-		Task 1: Added logging transfer over UDP from the echo_s to the log_s, as well as message formatting.
+	Maxwell Weinzierl: User 6 Task
+		Task 1: Documented the project in the readme and made sure the git repository was being utilized correctly.
 		Task 2: Debugging for various small issues throughout the project.
-		Task 3: Testing the executables with each other.
+		Task 3: Testing the executables with each other with all the new features.
