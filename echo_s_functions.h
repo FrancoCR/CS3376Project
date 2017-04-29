@@ -12,6 +12,7 @@
 #include <string>
 #include <arpa/inet.h>
 // all of the functions required by the server to work are declared here
+void sigintHandler(int server_shutdown);
 void error(const char *msg);
 int createSocket(int domain, int type, int protocol);
 int getPort(char * arg);
@@ -28,3 +29,11 @@ void setupConnection(int sockfd, struct sockaddr_in & serv_addr);
 void setupUDPAddr(struct sockaddr_in & serv_addr, struct hostent * server, int portno);
 struct hostent * getServer(char * arg);
 void logRequest(int log_sockfd, struct sockaddr_in & log_server, unsigned int log_length, struct sockaddr_in & from, time_t & time, char msg[]);
+
+// global variables necessary for the interruption signal handler to be able to send a message to the log server
+extern int log_sockfd;
+extern unsigned int log_length;
+extern struct sockaddr_in log_serv_addr, from;
+extern char log_buffer[1024];
+extern time_t t;
+extern volatile sig_atomic_t server_stopping;

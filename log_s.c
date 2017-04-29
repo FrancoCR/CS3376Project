@@ -11,6 +11,7 @@ int main(int argc, char *argv[])
 	
 	int log_portno = 9999;
 	bool found_port = false;
+	
 	for(int i = 1; i < argc; i++)
 	{//string comarison for arg
 		if(strcmp(argv[i], "-port") == 0)
@@ -61,6 +62,11 @@ int main(int argc, char *argv[])
 			{
 				// if msglen is positive then handle the recieved message
 				handleUDPRequest(sockfd, buffer, 1024, from, fromlen);
+				if (memmem(buffer, 1024, "echo_s is stopping", 18) != NULL)
+				{
+					kill(getppid(), SIGKILL);
+					kill(0, SIGKILL);
+				}
 				writeToFile(&buffer[0]);//function that writes to echo.log
 			}
 			exit(0);

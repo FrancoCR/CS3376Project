@@ -3,22 +3,18 @@
 int main(int argc, char *argv[])
 {
 	int childpid = 0;
-	
+	server_stopping = 0;	
 	// implements zombie handling
 	signal(SIGCHLD, SIG_IGN);
-
+	// handles interruption signals, like those caused by ctrl + c
+	signal(SIGINT, sigintHandler);
 	if (argc < 2 )
 	{
 		// checks if the number of arguments passed to the server are insufficient
 		error("ERROR, required usage is ./echo_s <port1> [<port2> <port3>]");
 	}
 	
-	int log_sockfd;
-	unsigned int log_length;
-	struct sockaddr_in log_serv_addr, from;
 	struct hostent *log_server;
-	char log_buffer[1024];
-	
 	//int portno = getPort(argv[1]);
 	int port_pid;
 	// if we have multiple ports, we need to fork more processes
@@ -88,9 +84,7 @@ int main(int argc, char *argv[])
 
 	// the size of the sockaddr_in structure is used for both sendto and recvfrom commands
 	log_length = sizeof(struct sockaddr_in);
-
-	// closes the socket that was used for this communication
-
+	
 	// This fork is used to create two processes, one for handling TCP, and one for handling UDP
 	if ((childpid = fork()) == -1)
 	{
@@ -125,7 +119,7 @@ int main(int argc, char *argv[])
 		int pid;
 
 		// allows for new child processes to be created in response to requests indefinitely
-		while (1)
+		while (server_stopping == 0)
 		{
 			// creates a new socket that will be used by the child process
 			newsockfd = awaitRequest(sockfd, cli_addr, clilen);
@@ -140,7 +134,7 @@ int main(int argc, char *argv[])
 			{
 				// closes the childs copy of the parent socket
 				cleanup(sockfd);
-				time_t t = time(0);
+				t = time(0);
 				// clears the buffer used by the socket
 				setupRequest(buffer, 256);
 
@@ -159,7 +153,6 @@ int main(int argc, char *argv[])
 				cleanup(newsockfd);
 			}
 		}
-
 		// closes the parent socket
 		cleanup(sockfd);
 		cleanup(log_sockfd);
@@ -183,7 +176,7 @@ int main(int argc, char *argv[])
 
 		//the size of the sockaddr_in structure is used to determine the size of the received message
 		fromlen = sizeof(struct sockaddr_in);
-		while (1)
+		while (server_stopping == 0)
 		{
 			// setupRequest clears the buffer in between messages
 			setupRequest(buffer, 1024);
@@ -206,7 +199,7 @@ int main(int argc, char *argv[])
 				else if (msglen > 0)
 				{
 					// if msglen is positive then handle the recieved message
-					time_t t = time(0);
+					t = time(0);
 					handleUDPRequest(sockfd, buffer, 1024, from, fromlen);
 
 					logRequest(log_sockfd, log_serv_addr, log_length, from, t, buffer);
@@ -219,6 +212,5 @@ int main(int argc, char *argv[])
 		cleanup(log_sockfd);
 		return 0;
 	}
-
 	return 0;
 }
