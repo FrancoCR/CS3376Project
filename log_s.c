@@ -62,6 +62,8 @@ int main(int argc, char *argv[])
 			{
 				// if msglen is positive then handle the recieved message
 				handleUDPRequest(sockfd, buffer, 1024, from, fromlen);
+
+				//check to see it the message is the terminating message
 				if (memmem(buffer, 1024, "echo_s is stopping", 18) != NULL)
 				{
 					writeToFile(&buffer[0]);//function that writes to echo.log
