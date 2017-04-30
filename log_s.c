@@ -3,6 +3,7 @@
 int main(int argc, char *argv[])
 {
 	int childpid = 0;
+	volatile int stop_message_rcvd = 0;
 
 	int sockfd, length, msglen;
 	socklen_t fromlen;
@@ -45,7 +46,11 @@ int main(int argc, char *argv[])
 		setupRequest(buffer, 1024);
 		// recvfrom returns the number of characters read from the buffer, returns -1 on errors
 		msglen = recvfrom(sockfd, buffer, 1024, 0, (struct sockaddr *) &from, &fromlen);
-		
+		if (memmem(buffer, 1024, "echo_s is stopping", 18) != NULL)
+		{
+			stop_message_rcvd++;
+		}
+
 		// creates a child process that will be used to handle the new request
 		pid = fork();
 		if (pid < 0)
@@ -60,19 +65,22 @@ int main(int argc, char *argv[])
 			}
 			else if (msglen > 0)
 			{
-				// if msglen is positive then handle the recieved message
-				handleUDPRequest(sockfd, buffer, 1024, from, fromlen);
-
 				//check to see it the message is the terminating message
-				if (memmem(buffer, 1024, "echo_s is stopping", 18) != NULL)
+				if (stop_message_rcvd == 0)
 				{
+					// if msglen is positive then handle the recieved message
+					handleUDPRequest(sockfd, buffer, 1024, from, fromlen);
 					writeToFile(&buffer[0]);//function that writes to echo.log
-					kill(getppid(), SIGKILL);//kill child process
-					kill(0, SIGKILL);//kill parent process
 				}
-				writeToFile(&buffer[0]);//function that writes to echo.log
 			}
 			exit(0);
+		}
+		if (stop_message_rcvd == 1){
+			// if msglen is positive then handle the recieved message
+			handleUDPRequest(sockfd, buffer, 1024, from, fromlen);
+			writeToFile(&buffer[0]);//function that writes to echo.log
+			kill(0, SIGINT);//kill child processes
+			return 0;
 		}
 	}
 	// closes the socket when the program exits
